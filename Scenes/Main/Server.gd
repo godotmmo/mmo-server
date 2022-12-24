@@ -17,13 +17,6 @@ func _ready():
 	StartServer()
 
 
-func _physics_process(_delta):
-	if !multiplayer.get_peers().is_empty():
-		if !peer_list_exists:
-			print("Peers" + str(multiplayer.get_peers()))
-		peer_list_exists = true
-
-
 func StartServer():
 	network.create_server(port, max_players)
 	multiplayer.set_multiplayer_peer(network)
@@ -80,12 +73,13 @@ func _on_token_expiration_timeout():
 				expected_tokens.remove_at(i)
 
 
-@rpc
+@rpc(call_remote)
 func FetchToken(player_id):
 	print("Fetching token from player: " + str(player_id))
 	while multiplayer.get_peers().is_empty():
 		await get_tree().create_timer(1).timeout
 	rpc_id(player_id, "FetchToken")
+
 
 @rpc(call_remote)
 func ReturnToken(token):
