@@ -25,7 +25,6 @@ func ConnectToServer():
 	# for a secondary connection
 	get_tree().set_multiplayer(gateway, get_path())
 	gateway.set_multiplayer_peer(gateway_client)
-	print(gateway.get_peers())
 	
 	gateway_client.peer_disconnected.connect(_OnConnectionDisconnected)
 	
