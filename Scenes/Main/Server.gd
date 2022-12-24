@@ -62,7 +62,7 @@ func ReturnPlayerData(player_data, requester):
 
 
 func _on_token_expiration_timeout():
-	var current_time = Time.get_unix_time_from_system()
+	var current_time = int(Time.get_unix_time_from_system())
 	var token_time
 	if expected_tokens == []:
 		pass
@@ -81,7 +81,7 @@ func FetchToken(player_id):
 	rpc_id(player_id, "FetchToken")
 
 
-@rpc(call_remote)
+@rpc(any_peer)
 func ReturnToken(token):
 	var player_id = multiplayer.get_remote_sender_id()
 	player_verification_process.Verify(player_id, token)
@@ -89,6 +89,7 @@ func ReturnToken(token):
 
 @rpc(call_local)
 func ReturnTokenVerificationResults(player_id, result):
-	rpc(player_id, "ReturnTokenVerificationResults", result)
+	print("Returning Token Verification Result to: " + str(player_id))
+	rpc_id(player_id, "ReturnTokenVerificationResults", player_id, result)
 
 

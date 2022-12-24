@@ -6,16 +6,19 @@ extends Node
 var awaiting_verification = {}
 
 func start(player_id):
-	awaiting_verification[player_id] = {"Timestamp": Time.get_unix_time_from_system()}
+	awaiting_verification[player_id] = {"Timestamp": int(Time.get_unix_time_from_system())}
 	main_interface.FetchToken(player_id)
 
 
 func Verify(player_id, token):
+	print("Verifying token")
 	var token_verification = false
-	while Time.get_unix_time_from_system() - int(token.right(64)) <= 30:
+	print("Unix time: " + str(int(Time.get_unix_time_from_system())) + " token time: " + str(int(token.right(10))))
+	while int(Time.get_unix_time_from_system()) - int(token.right(10)) <= 30:
 		if main_interface.expected_tokens.has(token):
 			token_verification = true
 			CreatePlayerContainer(player_id)
+			print("Container created")
 			awaiting_verification.erase(player_id)
 			main_interface.expected_tokens.erase(token)
 			break
@@ -32,6 +35,7 @@ func CreatePlayerContainer(player_id):
 	new_player_container.name = str(player_id)
 	get_parent().add_child(new_player_container, true)
 	var player_container = get_node("../" + str(player_id))
+	print(player_container)
 	FillPlayerContainer(player_container)
 
 
