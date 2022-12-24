@@ -1,8 +1,12 @@
 extends Node
 
-var network = ENetMultiplayerPeer.new()
+var network: ENetMultiplayerPeer = ENetMultiplayerPeer.new()
 var port = 24597
 var max_players = 100
+
+var expected_tokens = ["ab59723152488aa349627e22d72c9459c7b27245a4e0fe90fle2993d06dd7ea31702936807",
+						"ab59723152488aa349627e22d72c9459c7b27245a4e0fe90fie2993d06dd7ea31702936807",
+						"ab59723152488aa349627e22d72c9459c7b27245a4e0fe90fle2993d06dd7ea31602936807"]
 
 @onready var player_verification_process = get_node("PlayerVerification")
 
@@ -52,3 +56,36 @@ func FetchPlayerData():
 @rpc
 func ReturnPlayerData(player_data, requester):
 	instance_from_id(requester).SetAbilityValue(player_data)
+
+
+func _on_token_expiration_timeout():
+	var current_time = Time.get_unix_time_from_system()
+	var token_time
+	if expected_tokens == []:
+		pass
+	else: 	
+		for i in range(expected_tokens.size() -1, -1, -1):
+			token_time = int(expected_tokens[i].right(10))
+			if current_time - token_time >= 30:
+				expected_tokens.remove_at(i)
+
+
+@rpc
+func FetchToken(player_id):
+	print("Fetching token from player: " + str(player_id))
+	var current_peers = multiplayer.get_peers()
+	print("Peers: " + str(current_peers))
+	rpc_id(player_id, "FetchToken")
+
+
+@rpc(call_remote)
+func ReturnToken(token):
+	var player_id = multiplayer.get_remote_sender_id()
+	player_verification_process.Verify(player_id, token)
+
+
+@rpc(call_local)
+func ReturnTokenVerificationResults(player_id, result):
+	rpc(player_id, "ReturnTokenVerificationResults", result)
+
+
