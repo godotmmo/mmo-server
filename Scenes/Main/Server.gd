@@ -33,7 +33,9 @@ func _Peer_Connected(player_id):
 
 func _Peer_Disconnected(player_id):
 	print("User " + str(player_id) + " Disconnected")
-	get_node(str(player_id)).queue_free()
+	if has_node(str(player_id)):
+		rpc_id(0, "DespawnPlayer", str(player_id))
+		get_node(str(player_id)).queue_free()
 
 
 @rpc(any_peer)
@@ -44,9 +46,10 @@ func FetchSkillData(skill_name, requester):
 	print("Sending " + str(skill_data) +"," + skill_name + " To Player " + str(player_id)) 
 
 
-@rpc
-func ReturnSkillData(skill_data, skill_name, requester):
-	instance_from_id(requester).SetAbilityValue(skill_data, skill_name)
+@rpc(call_local)
+func ReturnSkillData(_skill_data, _skill_name, _requester):
+	# used for rpc checksum
+	pass
 
 
 @rpc(any_peer)
@@ -76,9 +79,9 @@ func _on_token_expiration_timeout():
 @rpc(call_remote)
 func FetchToken(player_id):
 	print("Fetching token from player: " + str(player_id))
-	while multiplayer.get_peers().is_empty():
+	while not multiplayer.get_peers().has(player_id):
 		await get_tree().create_timer(1).timeout
-	rpc_id(player_id, "FetchToken")
+	rpc_id(player_id, "FetchToken", player_id)
 
 
 @rpc(any_peer)
@@ -91,5 +94,17 @@ func ReturnToken(token):
 func ReturnTokenVerificationResults(player_id, result):
 	print("Returning Token Verification Result to: " + str(player_id))
 	rpc_id(player_id, "ReturnTokenVerificationResults", player_id, result)
+	if result == true:
+		rpc_id(0, "SpawnNewPlayer", player_id, Vector3(0,10,0))
 
 
+@rpc
+func SpawnNewPlayer(_player_id, _spawn_position):
+	# used for rpc checksum
+	pass
+
+
+@rpc
+func DespawnPlayer(_player_id):
+	# used for rpc checksum
+	pass
