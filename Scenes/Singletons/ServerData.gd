@@ -1,8 +1,8 @@
 extends Node
 
-var skill_data
+var skill_data: Dictionary
 
-var test_data = {
+var test_data: Dictionary = {
 	"stats": {
 		"health": 100,
 		"mana": 100,
@@ -11,6 +11,6 @@ var test_data = {
 }
 
 func _ready():
-	var skill_data_file = FileAccess.open("res://Data/SkillData/skill-data.json", FileAccess.READ)
-	var skill_data_json = JSON.parse_string(skill_data_file.get_as_text())
+	var skill_data_file: FileAccess = FileAccess.open("res://Data/SkillData/skill-data.json", FileAccess.READ)
+	var skill_data_json: Variant = JSON.parse_string(skill_data_file.get_as_text())
 	skill_data = skill_data_json

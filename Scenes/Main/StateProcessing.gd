@@ -1,9 +1,9 @@
 extends Node
 
-var world_state = {}
+var world_state: Dictionary = {}
 
 
-func _physics_process(_delta):
+func _physics_process(_delta: float):
 	if not get_parent().player_state_collection.is_empty():
 		world_state = get_parent().player_state_collection.duplicate(true)
 		for player in world_state.keys():
