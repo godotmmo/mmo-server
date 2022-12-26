@@ -6,9 +6,8 @@ var max_players = 100
 
 var peer_list_exists = false
 
-var expected_tokens = ["ab59723152488aa349627e22d72c9459c7b27245a4e0fe90fle2993d06dd7ea31702936807",
-						"ab59723152488aa349627e22d72c9459c7b27245a4e0fe90fie2993d06dd7ea31702936807",
-						"ab59723152488aa349627e22d72c9459c7b27245a4e0fe90fle2993d06dd7ea31602936807"]
+var expected_tokens = []
+var player_state_collection = {}
 
 @onready var player_verification_process = get_node("PlayerVerification")
 
@@ -35,6 +34,7 @@ func _Peer_Disconnected(player_id):
 	print("User " + str(player_id) + " Disconnected")
 	if has_node(str(player_id)):
 		rpc_id(0, "DespawnPlayer", str(player_id))
+		player_state_collection.erase(player_id)
 		get_node(str(player_id)).queue_free()
 
 
@@ -106,5 +106,32 @@ func SpawnNewPlayer(_player_id, _spawn_position):
 
 @rpc
 func DespawnPlayer(_player_id):
+	# used for rpc checksum
+	pass
+
+
+@rpc(any_peer)
+func ReceivePlayerState(player_state):
+	var player_id = multiplayer.get_remote_sender_id()
+	if player_state_collection.has(player_id): # Check if player is known in the current collection
+		if player_state_collection[player_id]["T"] < player_state["T"]: # Check if player_state is the latest
+			player_state_collection[player_id] = player_state # Replace player_state in the collection
+	else:
+		player_state_collection[player_id] = player_state # Add player_state in the collection
+
+
+@rpc(unreliable)
+func SendPlayerState(_player_state):
+	# used for rpc checksum
+	pass
+
+
+@rpc(unreliable)
+func SendWorldState(world_state): # In case of maps or chunks you will want to track player collection and send accordingly
+	rpc_id(0, "ReceiveWorldState", world_state)
+
+
+@rpc(unreliable)
+func ReceiveWorldState(_world_state):
 	# used for rpc checksum
 	pass

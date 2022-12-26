@@ -19,3 +19,7 @@ config/icon="res://icon.svg"
 
 ServerData="*res://Scenes/Singletons/ServerData.gd"
 HubConnection="*res://Scenes/Singletons/HubConnection.gd"
+
+[physics]
+
+common/physics_ticks_per_second=20
