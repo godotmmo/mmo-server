@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+Logger="*res://Scripts/logger.gd"
 ServerData="*res://Scenes/Singletons/ServerData.gd"
 HubConnection="*res://Scenes/Singletons/HubConnection.gd"
 
