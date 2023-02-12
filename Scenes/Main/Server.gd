@@ -38,7 +38,7 @@ func _Peer_Disconnected(player_id: int) -> void:
 		get_node(str(player_id)).queue_free()
 
 
-@rpc(any_peer)
+@rpc("any_peer")
 func FetchSkillData(skill_name: String, requester: int) -> void:
 	var player_id: int = multiplayer.get_remote_sender_id()
 	var skill_data: String = ServerData.skill_data[skill_name].value
@@ -46,7 +46,7 @@ func FetchSkillData(skill_name: String, requester: int) -> void:
 	print("Sending " + str(skill_data) +"," + skill_name + " To Player " + str(player_id)) 
 
 
-@rpc(any_peer)
+@rpc("any_peer")
 func FetchPlayerData() -> void:
 	var player_id: int = multiplayer.get_remote_sender_id()
 	var player_data: String = get_node(str(player_id)).player_data
@@ -70,7 +70,7 @@ func _on_token_expiration_timeout() -> void:
 				expected_tokens.remove_at(i)
 
 
-@rpc(call_remote)
+@rpc("call_remote")
 func FetchToken(player_id: int) -> void:
 	print("Fetching token from player: " + str(player_id))
 	while not multiplayer.get_peers().has(player_id):
@@ -78,13 +78,13 @@ func FetchToken(player_id: int) -> void:
 	rpc_id(player_id, "FetchToken", player_id)
 
 
-@rpc(any_peer)
+@rpc("any_peer")
 func ReturnToken(token: String) -> void:
 	var player_id: int = multiplayer.get_remote_sender_id()
 	player_verification_process.Verify(player_id, token)
 
 
-@rpc(call_local)
+@rpc("call_local")
 func ReturnTokenVerificationResults(player_id: int, result: bool) -> void:
 	print("Returning Token Verification Result to: " + str(player_id))
 	rpc_id(player_id, "ReturnTokenVerificationResults", player_id, result)
@@ -92,7 +92,7 @@ func ReturnTokenVerificationResults(player_id: int, result: bool) -> void:
 		rpc_id(0, "SpawnNewPlayer", player_id, Vector3(0,10,0))
 
 
-@rpc(any_peer)
+@rpc("any_peer")
 func ReceivePlayerState(player_state: Dictionary) -> void:
 	var player_id: int = multiplayer.get_remote_sender_id()
 	if player_state_collection.has(player_id): # Check if player is known in the current collection
@@ -102,19 +102,19 @@ func ReceivePlayerState(player_state: Dictionary) -> void:
 		player_state_collection[player_id] = player_state # Add player_state in the collection
 
 
-@rpc(unreliable)
+@rpc("unreliable")
 func SendWorldState(world_state: Dictionary) -> void: # In case of maps or chunks you will want to track player collection and send accordingly
 	rpc_id(0, "ReceiveWorldState", world_state)
 
 
-@rpc(any_peer)
+@rpc("any_peer")
 func FetchServerTime(client_time_msecs: int) -> void:
 	var player_id: int = multiplayer.get_remote_sender_id()
 	print("Returning server time to player: " + str(player_id))
 	rpc_id(player_id, "ReturnServerTime", int(Time.get_unix_time_from_system() * 1000), client_time_msecs)
 
 
-@rpc(any_peer)
+@rpc("any_peer")
 func DetermineLatency(client_time_msecs: int) -> void:
 	var player_id: int = multiplayer.get_remote_sender_id()
 	rpc_id(player_id, "ReturnLatency", client_time_msecs)
@@ -125,7 +125,7 @@ func DetermineLatency(client_time_msecs: int) -> void:
 #								rpc checksums													  #
 ###################################################################################################
 
-@rpc(call_local)
+@rpc("call_local")
 func ReturnSkillData(_skill_data, _skill_name, _requester):
 	# used for rpc checksum
 	pass
@@ -143,13 +143,13 @@ func DespawnPlayer(_player_id):
 	pass
 
 
-@rpc(unreliable)
+@rpc("unreliable")
 func SendPlayerState(_player_state):
 	# used for rpc checksum
 	pass
 
 
-@rpc(unreliable)
+@rpc("unreliable")
 func ReceiveWorldState(_world_state):
 	# used for rpc checksum
 	pass

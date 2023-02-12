@@ -43,6 +43,6 @@ func _OnConnectionSucceeded() -> void:
 	print("Succesfully connected to Game Server Hub")
 	
 
-@rpc(any_peer)
+@rpc("any_peer")
 func ReceiveLoginToken(token: String) -> void:
 	gameserver.expected_tokens.append(token)
